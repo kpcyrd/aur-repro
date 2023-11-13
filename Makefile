@@ -13,7 +13,7 @@ all: man repro
 man: $(MANS)
 $(MANS):
 
-docs/repro.%: docs/repro.%.txt docs/asciidoc.conf
+docs/aur-repro.%: docs/aur-repro.%.txt docs/asciidoc.conf
 	a2x --no-xmllint --asciidoc-opts="-f docs/asciidoc.conf" -d manpage -f manpage -D docs $<
 
 repro: repro.in
