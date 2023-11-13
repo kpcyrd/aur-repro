@@ -331,7 +331,7 @@ function cmd_check(){
     declare -A buildinfo
     while IFS=$'=' read -r key value; do
         [[ "${key}" = [#!]* ]] || [[ "${key}" = "" ]] || buildinfo["${key}"]="${value}"
-    done <<< "$(buildinfo -ff "${pkg}")"
+    done <<< "$(aur-buildinfo -ff "${pkg}")"
     packager="${buildinfo[packager]}"
     builddir="${buildinfo[builddir]}"
     pkgver="${buildinfo[pkgver]}"
@@ -364,7 +364,7 @@ function cmd_check(){
 
     msg2 "Preparing packages"
     mkdir -p "${cachedir}"
-    mapfile -t packages < <(buildinfo -d "${cachedir}" "${pkg}")
+    mapfile -t packages < <(aur-buildinfo -d "${cachedir}" "${pkg}")
     msg2 "Finished preparing packages"
 
     msg "Starting build..."
@@ -384,19 +384,25 @@ function cmd_check(){
     bash <<-__END__
 shopt -s globstar
 
-pacman -S devtools --noconfirm --needed
+pacman -S git --noconfirm --needed
 
-if ! pkgctl repo clone --protocol https --switch "$pkgver" "$pkgbase"; then
+if ! git clone "https://aur.archlinux.org/$pkgbase.git"; then
     echo "ERROR: Failed checkout $pkgbase" >&2
     exit 1
 fi
 
-if ! echo "$pkgbuild_sha256sum  $pkgbase/PKGBUILD" | sha256sum -c; then
-    echo "ERROR: Failed to find commit this was built with (PKGBUILD checksum didn't match)" >&2
-    exit 1
-fi
-
-mv ./$pkgbase/* /startdir
+pushd $pkgbase
+for rev in \$(git rev-list --all); do
+    pkgbuild_checksum=\$(git show \$rev:PKGBUILD | sha256sum -b)
+    pkgbuild_checksum=\${pkgbuild_checksum%% *}
+    if [ \$pkgbuild_checksum = $pkgbuild_sha256sum ]; then
+        git checkout \$rev
+        mv ./* /startdir
+        exit 0
+    fi
+done
+echo "ERROR: Failed to find commit this was built with (PKGBUILD checksum didn't match any commit)" >&2
+exit 1
 __END__
     lock_close 9 "${cachedir}.lock"
   elif [[ -r "PKGBUILD" ]]; then
@@ -450,7 +456,7 @@ __END__
       # Do this by using precisely the time that the keyring package
       # was built.
 
-      keyring_build_date="$(buildinfo -f builddate "${cachedir}/${keyring##*/}")"
+      keyring_build_date="$(aur-buildinfo -f builddate "${cachedir}/${keyring##*/}")"
 
       # Note that while we leave faked-system-time in gpg.conf, this
       # will be overridden during the actual build by adding another
@@ -629,7 +635,7 @@ function source_conf() {
         source "$repro_conf"
     fi
 
-    xdg_repro_dir="${XDG_CONFIG_HOME:-$HOME/.config}/archlinux-repro"
+    xdg_repro_dir="${XDG_CONFIG_HOME:-$HOME/.config}/aur-repro"
     if [[ -r "$xdg_repro_dir/repro.conf" ]]; then
         # shellcheck source=/dev/null
         source "$xdg_repro_dir/repro.conf"

@@ -1,4 +1,4 @@
-PROGNM ?= archlinux-repro
+PROGNM ?= aur-repro
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
 SHRDIR ?= $(PREFIX)/share
@@ -23,8 +23,7 @@ repro: repro.in
 .PHONY: install
 install: repro man
 	install -Dm755 repro $(DESTDIR)$(BINDIR)/$(PROGNM)
-	ln -s $(PROGNM) $(DESTDIR)$(BINDIR)/repro
-	install -Dm755 buildinfo -t $(DESTDIR)$(BINDIR)
+	install -Dm755 buildinfo $(DESTDIR)$(BINDIR)/aur-buildinfo
 	install -Dm644 examples/*   -t $(DESTDIR)$(DOCDIR)/$(PROGNM)
 	for manfile in $(MANS); do \
 		install -Dm644 $$manfile -t $(DESTDIR)$(MANDIR)/man$${manfile##*.}; \
@@ -33,8 +32,8 @@ install: repro man
 
 .PHONY: uninstall
 uninstall:
-	rm $(DESTDIR)$(BINDIR)/repro
-	rm $(DESTDIR)$(BINDIR)/buildinfo
+	rm $(DESTDIR)$(BINDIR)/$(PROGNM)
+	rm $(DESTDIR)$(BINDIR)/aur-buildinfo
 	rm -rf $(DESTDIR)$(DOCDIR)/$(PROGNM)
 	for manfile in $(MANS); do \
 		rm $(DESTDIR)$(MANDIR)/man$${manfile##*.}/$${manfile##*/}; \
