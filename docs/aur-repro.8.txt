@@ -1,19 +1,19 @@
-repro(8)
-========
+aur-repro(8)
+============
 
 Name
 ----
-repro - reproducible builds utility
+aur-repro - reproducible builds utility
 
 
 Synopsis
 --------
-'repro' [options] <local-package>
+'aur-repro' [options] <local-package>
 
 
 Description
 -----------
-'repro' is a script to help with verifying and checking reproducibility of
+'aur-repro' is a script to help with verifying and checking reproducibility of
 packages. It builds a linkman:systemd-nspawn[1] container with the Arch Linux
 bootstrap image to build packages in a clean chroot.
 
@@ -46,4 +46,4 @@ Options
 
 See Also
 --------
-linkman:makepkg[8] linkman:repro.conf[5]
+linkman:makepkg[8] linkman:aur-repro.conf[5]
