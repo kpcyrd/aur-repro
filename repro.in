@@ -26,6 +26,10 @@ ARCHIVEURL="${ARCH_ARCHIVE_CACHE:-https://archive.archlinux.org/packages}"
 IMGDIRECTORY=$(mktemp -dt XXXXXXXXXX.arch_img)
 trap "{ rm -r $IMGDIRECTORY; }" EXIT
 
+PACMANCONFIG=""
+
+KEYLIST=""
+
 DIFFOSCOPE="diffoscope"
 
 # Turn on/off check in repro
@@ -550,6 +554,20 @@ __END__
     printf 'LANG=en_US.UTF-8\n' > "$build_root_dir/etc/locale.conf"
     exec_nspawn "$build" locale-gen
 
+    exec_nspawn "$build" pacman-key --init
+    exec_nspawn "$build" pacman-key --populate archlinux
+    if [[ -f "$KEYLIST" ]]; then
+        while read -r fingerprint; do
+            # Skip empty lines or comments
+            [[ -z "$fingerprint" || "$fingerprint" =~ ^# ]] && continue
+
+            exec_nspawn "$build" pacman-key --recv-keys "$fingerprint"
+            exec_nspawn "$build" pacman-key --lsign-key "$fingerprint"
+        done < "$KEYLIST"
+    fi
+    [[ -f "$PACMANCONFIG" ]] && cp "$PACMANCONFIG" "$build_root_dir/etc/pacman.conf"
+    exec_nspawn "$build" pacman -Sy --noconfirm
+
     printf 'builduser ALL = NOPASSWD: /usr/bin/pacman\n' > "$build_root_dir/etc/sudoers.d/builduser-pacman"
     exec_nspawn "$build" useradd -m -s /bin/bash -d /build builduser
     echo "keyserver-options auto-key-retrieve" | install -Dm644 /dev/stdin "$build_root_dir/build/.gnupg/gpg.conf"
@@ -586,6 +604,8 @@ General Options:
  -n                           Run makepkg with --nocheck
  -V                           Print version information
  -o <path>                    Set the output directory (default: ./build)
+ -c                           Specify a custom pacman configuration file, see: /usr/local/share/doc/aur-repro/pacman.conf.example
+ -k                           Specify a list of additional pacman keys to be fetched automatically, see: /usr/local/share/doc/aur-repro/key.list.example
 __END__
 }
 
@@ -594,7 +614,7 @@ function print_version() {
 }
 
 function parse_args() {
-    while getopts :hdnfVo: arg; do
+    while getopts :hdnfVo:c:k: arg; do
         case $arg in
             h) print_help; exit 0;;
             V) print_version; exit 0;;
@@ -602,6 +622,8 @@ function parse_args() {
             d) run_diffoscope=1;;
             n) NOCHECK=1;;
             o) OUTDIR="$OPTARG";;
+            c) PACMANCONFIG="$OPTARG";;
+            k) KEYLIST="$OPTARG";;
             *) error "unknown argument ${OPTARG}" ; print_help; exit 1;;
         esac
     done

@@ -9,3 +9,7 @@ DIFFOSCOPE="diffoscope"
 HOSTMIRROR="http://mirror.neuf.no/archlinux/\$repo/os/\$arch"
 
 IMGDIRECTORY="/tmp/arch_img"
+
+PACMANCONFIG=""
+
+KEYLIST=""

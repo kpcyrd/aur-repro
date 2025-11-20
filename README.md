@@ -17,11 +17,10 @@ Work in progress. Please read the code before using.
 
 Patches very welcome.
 
-- Support fetching build dependencies from a custom pacman repository
 - Possibly also support fetching build dependencies from a custom archive, and
   only if the package is not present there, try archive.archlinux.org
 
-Both of them need to be implemented in `aur-buildinfo` (which may need to read
+This would need to be implemented in `aur-buildinfo` (which may need to read
 a configuration file in the future).
 
 ## Considerations
