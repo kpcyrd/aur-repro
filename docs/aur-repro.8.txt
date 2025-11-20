@@ -44,6 +44,12 @@ Options
         Set the output directory for the rebuilt packages. Defaults to
         `./build`.
 
+ *-c*::
+        Specify a custom pacman configuration file, see: /usr/local/share/doc/aur-repro/pacman.conf.example
+
+ *-k*::
+        Specify a list of additional pacman keys to be fetched automatically, see: /usr/local/share/doc/aur-repro/key.list.example
+
 See Also
 --------
-linkman:makepkg[8] linkman:aur-repro.conf[5]
+linkman:makepkg[8] linkman:aur-repro.conf[5] linkman:pacman.conf[5] linkman:key.list[5]

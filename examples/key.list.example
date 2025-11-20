@@ -1,0 +1,11 @@
+# Below you can specify any additional "pacman" signing keys you may need
+# to be fetched automatically via the keyserver "pacman" uses by default
+# using this key list file and the "-k" argument:
+#
+# You can also specify any additional "pacman" repositories you may need to
+# resolve dependencies that are not in the official "Arch Linux" repositories
+# using the "-c" argument and a "pacman" configuration file, see:
+# /usr/local/share/doc/aur-repro/pacman.conf.example
+#
+#13578D45682166C2DC036926FBA462E35DE14986
+#13578D45682166C2DC036926FBA462E35DE14986
